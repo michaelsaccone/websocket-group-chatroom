@@ -15,9 +15,8 @@
         </div>
 
         <div class="row d-flex justify-content-center m-5">
-            <ul id="message-list">
-                <li> Messaggio 1</li>
-            </ul>
+            <div id="message-list">
+            </div>
         </div>
 
         <div class="row d-flex justify-content-center m-5">
@@ -27,12 +26,29 @@
     </div>
     
     <script>
+
         server = new WebSocket('ws://localhost:3033');
+
+        // Invio nome utente
+        let name = window.prompt("INSERISCI NOME: ")
+        server.send(name)
 
         function addMessage(message) {
             messageList = document.getElementById('message-list')
-            li = document.createElement('li')
-            li.innerHTML = message
+            if(message.startsWith(name)) {
+                messageList.innerHTML += `
+                <div class='alert alert-success'>
+                    ${message}
+                </div>
+            `;   
+            } else {
+                messageList.innerHTML += `
+                <div class='alert alert-warning'>
+                    ${message}
+                </div>
+            `;
+            }
+            
             messageList.appendChild(li)
         }
 
@@ -43,15 +59,20 @@
 
         server.onmessage = function(event) {
             console.log("messaggio ricevuto: " + event.data)
-            addMessage("LORO: " + event.data)
+            addMessage(event.data)
         }
 
         function inviaMessaggio() {
             input = document.getElementById('message-input')
             msg = input.value
             server.send(msg)
-            addMessage("TU: " + msg)
+            input.value = ''
         }
+
+        window.addEventListener('keypress', (e) => {
+            if(e.key === 'Enter')
+                inviaMessaggio();
+        })
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
